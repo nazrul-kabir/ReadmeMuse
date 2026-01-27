@@ -79,16 +79,22 @@ async function checkIfDocNeedsUpdate(
   input: AnalysisInput
 ): Promise<boolean> {
   // Simple heuristic: check if PR adds new functions, classes, or exports
+  // In diff patches, added lines are prefixed with '+' or '+ ' (with space)
+  const exportPatterns = [
+    "export function",
+    "export class",
+    "export const",
+    "export interface",
+    "export type",
+    "// new:",
+    "# new:"
+  ];
+  
   const hasNewCode = input.changedFiles.some(file => {
     const patch = file.patch.toLowerCase();
-    return (
-      patch.includes("export function") ||
-      patch.includes("export class") ||
-      patch.includes("export const") ||
-      patch.includes("export interface") ||
-      patch.includes("export type") ||
-      patch.includes("// new:") ||
-      patch.includes("# new:")
+    // Check if patch contains added lines with export patterns
+    return exportPatterns.some(pattern => 
+      patch.includes(`+${pattern}`) || patch.includes(`+ ${pattern}`)
     );
   });
 
@@ -153,7 +159,8 @@ function extractNewExports(changedFiles: Array<{ filename: string; patch: string
   
   for (const file of changedFiles) {
     const patch = file.patch;
-    const exportMatches = patch.match(/^\+.*export\s+(function|class|const|interface|type)\s+(\w+)/gm);
+    // Match export statements in added lines (prefixed with + in diff)
+    const exportMatches = patch.match(/\+.*export\s+(function|class|const|interface|type)\s+(\w+)/g);
     
     if (exportMatches) {
       for (const match of exportMatches) {
