@@ -93,9 +93,10 @@ async function checkIfDocNeedsUpdate(
   const hasNewCode = input.changedFiles.some(file => {
     const patch = file.patch.toLowerCase();
     // Check if patch contains added lines with export patterns
-    return exportPatterns.some(pattern => 
-      patch.includes(`+${pattern}`) || patch.includes(`+ ${pattern}`)
-    );
+    return exportPatterns.some(pattern => {
+      const patternLower = pattern.toLowerCase();
+      return patch.includes(`+${patternLower}`) || patch.includes(`+ ${patternLower}`);
+    });
   });
 
   // Check if README mentions the changed files
@@ -159,8 +160,8 @@ function extractNewExports(changedFiles: Array<{ filename: string; patch: string
   
   for (const file of changedFiles) {
     const patch = file.patch;
-    // Match export statements in added lines (prefixed with + in diff)
-    const exportMatches = patch.match(/\+.*export\s+(function|class|const|interface|type)\s+(\w+)/g);
+    // Match export statements in added lines (prefixed with + in diff), allowing optional space after '+'
+    const exportMatches = patch.match(/^\+\s*export\s+(function|class|const|interface|type)\s+(\w+)/gm);
     
     if (exportMatches) {
       for (const match of exportMatches) {
