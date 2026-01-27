@@ -1,6 +1,13 @@
 # ReadmeMuse 📝
 
+[![CI](https://github.com/nazrul-kabir/ReadmeMuse/workflows/CI/badge.svg)](https://github.com/nazrul-kabir/ReadmeMuse/actions)
+[![License: ISC](https://img.shields.io/badge/License-ISC-blue.svg)](LICENSE)
+
 GitHub-native, Copilot-powered partial doc diff agent — a lightweight GitHub App that suggests precise README + key doc updates only in your PRs, preserving your repo's voice and avoiding full-repo scans.
+
+## 🚀 Quick Start
+
+**Want to get started in 5 minutes?** → [QUICKSTART.md](QUICKSTART.md)
 
 ## Features
 
@@ -19,6 +26,8 @@ GitHub-native, Copilot-powered partial doc diff agent — a lightweight GitHub A
 5. **PR Comment**: Posts suggestions as a formatted comment with expandable diffs
 
 ## Setup
+
+> **📖 Detailed guide**: See [QUICKSTART.md](QUICKSTART.md) for step-by-step setup
 
 ### 1. Install as GitHub App
 
@@ -137,38 +146,88 @@ your documentation in sync with code changes.
 
 ```
 src/
-├── index.ts                 # Main Probot app entry point
+├── index.ts                     # Main Probot app entry point
 ├── handlers/
 │   └── pullRequestHandler.ts   # PR event handler
 ├── services/
-│   ├── configService.ts        # Config loading
-│   ├── analysisService.ts      # PR analysis orchestration
-│   └── commentService.ts       # PR comment formatting
+│   ├── configService.ts         # Config loading
+│   ├── analysisService.ts       # PR analysis orchestration
+│   └── commentService.ts        # PR comment formatting
 ├── utils/
-│   ├── pathMatcher.ts         # File pattern matching
-│   └── aiAnalyzer.ts          # AI-powered doc analysis
+│   ├── pathMatcher.ts          # File pattern matching
+│   └── aiAnalyzer.ts           # AI-powered doc analysis
 └── types/
-    ├── config.ts              # Configuration types
-    └── suggestion.ts          # Suggestion types
+    ├── config.ts               # Configuration types
+    └── suggestion.ts           # Suggestion types
 ```
 
 ## Development
 
+### Setup
+
 ```bash
+# Clone repository
+git clone https://github.com/nazrul-kabir/ReadmeMuse.git
+cd ReadmeMuse
+
+# Install dependencies
+npm install
+
 # Build TypeScript
 npm run build
-
-# Run in development mode
-npm run dev
 
 # Run tests
 npm test
 ```
 
+### Running Locally
+
+1. Set up environment variables (copy `.env.example` to `.env`)
+2. Build the project: `npm run build`
+3. Start the app: `npm start`
+4. Use [smee.io](https://smee.io) to forward webhooks to localhost
+
+### Testing
+
+```bash
+# Run all tests
+npm test
+
+# Watch mode
+npm run test:watch
+
+# Coverage report
+npm run test:coverage
+```
+
+## Deployment
+
+See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed deployment instructions covering:
+- Heroku
+- Docker
+- Node.js servers
+- Serverless platforms
+
+## Documentation
+
+- [QUICKSTART.md](QUICKSTART.md) - Get started in 5 minutes
+- [DEPLOYMENT.md](DEPLOYMENT.md) - Deployment guide
+- [CONTRIBUTING.md](CONTRIBUTING.md) - Contribution guidelines
+
 ## License
 
-ISC
+ISC - See [LICENSE](LICENSE) file for details
 
 ## Contributing
 
-Contributions welcome! Please open an issue or PR.
+Contributions welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) before submitting PRs.
+
+## Support
+
+- 🐛 [Report issues](https://github.com/nazrul-kabir/ReadmeMuse/issues)
+- 💬 [Start a discussion](https://github.com/nazrul-kabir/ReadmeMuse/discussions)
+- ⭐ Star this repo if you find it useful!
+
+---
+
+Built with ❤️ using [Probot](https://probot.github.io/)
