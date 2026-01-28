@@ -1,0 +1,15 @@
+# ReadmeMuse
+node_modules
+dist
+*.log
+.env
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db

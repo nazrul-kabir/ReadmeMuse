@@ -1,0 +1,16 @@
+name: ReadmeMuse
+description: GitHub-native documentation update agent that suggests precise README and doc updates in your PRs
+url: https://github.com/nazrul-kabir/ReadmeMuse
+
+# Webhook events
+default_events:
+  - pull_request
+
+# Permissions
+default_permissions:
+  contents: read
+  issues: write
+  pull_requests: write
+
+# Configuration
+public: true

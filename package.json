@@ -1,0 +1,37 @@
+{
+  "name": "readmemuse",
+  "version": "1.0.0",
+  "description": "GitHub-native, Copilot-powered partial doc diff agent that suggests precise README + key doc updates in PRs",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "nodemon --exec npm start",
+    "start": "probot run ./dist/index.js",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
+  },
+  "keywords": [
+    "github-app",
+    "probot",
+    "documentation",
+    "readme",
+    "copilot"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@octokit/rest": "^22.0.1",
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^25.0.10",
+    "js-yaml": "^4.1.1",
+    "minimatch": "^10.1.1",
+    "probot": "^14.2.4",
+    "typescript": "^5.9.3"
+  },
+  "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "jest": "^30.2.0",
+    "ts-jest": "^29.4.6"
+  }
+}

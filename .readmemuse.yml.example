@@ -1,0 +1,19 @@
+# Configuration for ReadmeMuse
+# This file defines which paths to watch and which documentation files to update
+
+# List of file patterns to watch for changes
+# When files matching these patterns change, documentation updates will be suggested
+watchPaths:
+  - "src/**/*"
+  - "lib/**/*"
+  - "api/**/*"
+  - "*.js"
+  - "*.ts"
+
+# List of documentation files to analyze for updates
+# These files will be checked for needed updates when watched files change
+documentationFiles:
+  - "README.md"
+  - "docs/**/*.md"
+  - "CONTRIBUTING.md"
+  - "API.md"
