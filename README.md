@@ -144,6 +144,8 @@ your documentation in sync with code changes.
 
 ## Architecture
 
+ReadmeMuse follows a clean, event-driven architecture optimized for GitHub App webhooks:
+
 ```
 src/
 ├── index.ts                     # Main Probot app entry point
@@ -160,6 +162,12 @@ src/
     ├── config.ts               # Configuration types
     └── suggestion.ts           # Suggestion types
 ```
+
+**📐 Detailed Architecture Documentation**: See [ARCHITECTURE.md](ARCHITECTURE.md) for comprehensive diagrams including:
+- End-to-End Data Flow Diagram
+- Process-level DFD (Data Flow Diagrams)
+- Sequence Diagrams with timing analysis
+- Component interactions and responsibilities
 
 ## Development
 
@@ -211,6 +219,7 @@ See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed deployment instructions covering
 ## Documentation
 
 - [QUICKSTART.md](QUICKSTART.md) - Get started in 5 minutes
+- [ARCHITECTURE.md](ARCHITECTURE.md) - System architecture and data flow diagrams
 - [DEPLOYMENT.md](DEPLOYMENT.md) - Deployment guide
 - [CONTRIBUTING.md](CONTRIBUTING.md) - Contribution guidelines
 
