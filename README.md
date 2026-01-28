@@ -219,6 +219,7 @@ See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed deployment instructions covering
 ## Documentation
 
 - [QUICKSTART.md](QUICKSTART.md) - Get started in 5 minutes
+- [PRODUCT_SPEC.md](PRODUCT_SPEC.md) - Comprehensive product specification
 - [ARCHITECTURE.md](ARCHITECTURE.md) - System architecture and data flow diagrams
 - [DEPLOYMENT.md](DEPLOYMENT.md) - Deployment guide
 - [CONTRIBUTING.md](CONTRIBUTING.md) - Contribution guidelines
