@@ -13,9 +13,11 @@ GitHub-native, Copilot-powered partial doc diff agent — a lightweight GitHub A
 
 - 🎯 **Smart Triggering**: Only analyzes PRs when code changes touch configured watch paths
 - 📋 **YAML Configuration**: Simple repo-level config to define watchlist and documentation files
-- 🤖 **AI-Powered Analysis**: Analyzes PR diffs and suggests relevant documentation updates
+- 🤖 **AI-Powered Analysis**: Uses OpenAI API (compatible with GitHub Copilot models) to analyze PR diffs and generate intelligent documentation suggestions
+- 🎨 **Tone Preservation**: Learns and matches your repository's unique voice using tone examples
 - 💬 **PR Comments**: Posts suggestions directly as GitHub PR comments with diff patches
-- 🔍 **Non-Invasive**: Preserves your repo's voice and style, only suggests updates where needed
+- 🔍 **Non-Invasive**: Only suggests updates where needed, preserving your workflow
+- 🔄 **Graceful Fallback**: Works with heuristic-based analysis if AI is not configured
 
 ## How It Works
 
@@ -56,6 +58,13 @@ documentationFiles:
   - "README.md"
   - "docs/**/*.md"
   - "CONTRIBUTING.md"
+
+# Optional: Tone examples to guide AI-generated documentation
+# Provide 2-3 representative snippets from your existing docs
+# This helps ReadmeMuse match your repository's unique voice
+toneExamples:
+  - "Our API is designed to be intuitive and developer-friendly."
+  - "We believe in making complex tasks simple through elegant abstractions."
 ```
 
 See [.readmemuse.yml.example](.readmemuse.yml.example) for a complete example.
@@ -78,10 +87,27 @@ cp .env.example .env
 # - APP_ID
 # - PRIVATE_KEY_PATH
 # - WEBHOOK_SECRET
+# - OPENAI_API_KEY (for AI-powered analysis)
 
 # Start the app
 npm start
 ```
+
+**AI Configuration (Optional but Recommended):**
+
+ReadmeMuse uses OpenAI API for intelligent documentation analysis. To enable AI-powered features:
+
+1. Get an API key from [OpenAI Platform](https://platform.openai.com/api-keys)
+2. Add to your `.env` file:
+   ```bash
+   OPENAI_API_KEY=your_api_key_here
+   ```
+3. Optionally customize the model:
+   ```bash
+   OPENAI_MODEL=gpt-4o  # Default: gpt-4o-mini
+   ```
+
+Without AI configuration, ReadmeMuse falls back to heuristic-based analysis which still provides useful suggestions but with less intelligence.
 
 #### Production Deployment
 
@@ -117,6 +143,23 @@ documentationFiles:
   - "CONTRIBUTING.md"   # Contributing guide
   - "API.md"            # API documentation
 ```
+
+### Tone Examples (AI Feature)
+
+Help ReadmeMuse match your repository's unique voice by providing tone examples:
+
+```yaml
+toneExamples:
+  - "We keep things simple and fun!"
+  - "Our API is designed with developers in mind."
+  - "Performance and scalability are at our core."
+```
+
+**Tips for tone examples:**
+- Provide 2-5 representative snippets from your existing documentation
+- Choose examples that showcase your writing style, formality level, and personality
+- The AI will use these to generate suggestions that sound like they're written by your team
+- Examples can be full sentences or short phrases that capture your voice
 
 ## Example Output
 

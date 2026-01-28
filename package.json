@@ -26,6 +26,7 @@
     "@types/node": "^25.0.10",
     "js-yaml": "^4.1.1",
     "minimatch": "^10.1.1",
+    "openai": "^6.16.0",
     "probot": "^14.2.4",
     "typescript": "^5.9.3"
   },
