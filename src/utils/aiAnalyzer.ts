@@ -26,8 +26,31 @@ interface AIAnalysisResponse {
   diffPatch: string;
 }
 
-// Initialize AI client for AI-powered analysis
-// Supports OpenRouter (default), OpenAI, or any OpenAI-compatible API
+/**
+ * AI Provider Architecture Decision
+ * 
+ * ReadmeMuse uses the OpenAI SDK (not GitHub Copilot SDK) for AI-powered analysis.
+ * 
+ * Why OpenAI SDK?
+ * - ReadmeMuse is a webhook-based GitHub App (automated, stateless)
+ * - OpenAI SDK provides direct API access perfect for automation
+ * - Works with multiple providers: OpenRouter (freemium), OpenAI, Azure OpenAI
+ * - Simple request/response pattern matches webhook model
+ * 
+ * Why NOT GitHub Copilot SDK?
+ * - Copilot SDK (@github/copilot-sdk) is designed for interactive sessions
+ * - Best for: CLI tools, @-mentions, user-triggered workflows, MCP servers
+ * - NOT optimized for: Background webhook automation, stateless operations
+ * - GitHub deprecated Copilot Extensions as GitHub Apps (Nov 2025)
+ * - Would require complex session management in webhook handlers
+ * 
+ * For detailed reasoning, see: ARCHITECTURE_DECISIONS.md (ADR-001)
+ * 
+ * Supported Providers:
+ * - OpenRouter (primary): Free tier models, freemium-friendly
+ * - OpenAI (fallback): Direct OpenAI API access
+ * - Any OpenAI-compatible API (via OPENAI_BASE_URL)
+ */
 let aiClient: OpenAI | null = null;
 
 function getAIClient(): OpenAI | null {
@@ -55,8 +78,11 @@ function getAIClient(): OpenAI | null {
 /**
  * Generate documentation suggestions using AI analysis
  * 
- * This function integrates with GitHub Copilot SDK to analyze PR changes
- * and suggest documentation updates.
+ * Uses OpenAI SDK (not GitHub Copilot SDK) for automated analysis in webhook context.
+ * The OpenAI SDK is better suited for stateless, webhook-driven automation, while
+ * the GitHub Copilot SDK is designed for interactive, session-based workflows.
+ * 
+ * See ARCHITECTURE_DECISIONS.md for detailed reasoning.
  */
 export async function generateDocumentationSuggestions(
   input: AnalysisInput

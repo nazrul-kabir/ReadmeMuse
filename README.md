@@ -20,6 +20,8 @@ GitHub-native, Copilot-powered partial doc diff agent — a lightweight GitHub A
 - 🔄 **Graceful Fallback**: Works with heuristic-based analysis if AI is not configured
 - 💰 **Freemium-Friendly**: Supports free tier AI models via OpenRouter
 
+> **Note on AI Provider:** ReadmeMuse uses the OpenAI SDK (not GitHub Copilot SDK) because it's designed as a webhook-based GitHub App requiring automated, stateless processing. The GitHub Copilot SDK is better suited for interactive, session-based workflows. See [ARCHITECTURE_DECISIONS.md](ARCHITECTURE_DECISIONS.md) for detailed reasoning.
+
 ## How It Works
 
 1. **Webhook Trigger**: Listens for PR open/update events on GitHub
@@ -288,6 +290,7 @@ See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed deployment instructions covering
 - [QUICKSTART.md](QUICKSTART.md) - Get started in 5 minutes
 - [PRODUCT_SPEC.md](PRODUCT_SPEC.md) - Comprehensive product specification
 - [ARCHITECTURE.md](ARCHITECTURE.md) - System architecture and data flow diagrams
+- [ARCHITECTURE_DECISIONS.md](ARCHITECTURE_DECISIONS.md) - Key architectural decisions and rationale
 - [DEPLOYMENT.md](DEPLOYMENT.md) - Deployment guide
 - [CONTRIBUTING.md](CONTRIBUTING.md) - Contribution guidelines
 

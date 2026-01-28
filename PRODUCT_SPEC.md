@@ -172,6 +172,7 @@ GitHub Webhook (PR Event) --> Probot App (Node.js)
   - `js-yaml` (for config)
   - `minimatch` (for path globs)
   - `openai` (OpenAI SDK for AI calls - works with OpenRouter, OpenAI, and other compatible APIs)
+- **AI Provider**: OpenAI SDK (not GitHub Copilot SDK - see ARCHITECTURE_DECISIONS.md for reasoning)
 - **Testing**: Jest for unit tests (e.g., path matching, config parsing).
 - **Deployment**: Vercel, Heroku, or AWS Lambda. Env vars: `GITHUB_APP_ID`, `PRIVATE_KEY`, `WEBHOOK_SECRET`, `OPENROUTER_API_KEY` or `OPENAI_API_KEY`.
 - **MCP Integration (Advanced)**: If using custom agent, add a separate Node.js MCP server (reference GitHub's MCP docs).
