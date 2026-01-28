@@ -13,11 +13,12 @@ GitHub-native, Copilot-powered partial doc diff agent — a lightweight GitHub A
 
 - 🎯 **Smart Triggering**: Only analyzes PRs when code changes touch configured watch paths
 - 📋 **YAML Configuration**: Simple repo-level config to define watchlist and documentation files
-- 🤖 **AI-Powered Analysis**: Uses OpenAI API (compatible with GitHub Copilot models) to analyze PR diffs and generate intelligent documentation suggestions
+- 🤖 **AI-Powered Analysis**: Uses OpenRouter (with free tier models) or OpenAI API to analyze PR diffs and generate intelligent documentation suggestions
 - 🎨 **Tone Preservation**: Learns and matches your repository's unique voice using tone examples
 - 💬 **PR Comments**: Posts suggestions directly as GitHub PR comments with diff patches
 - 🔍 **Non-Invasive**: Only suggests updates where needed, preserving your workflow
 - 🔄 **Graceful Fallback**: Works with heuristic-based analysis if AI is not configured
+- 💰 **Freemium-Friendly**: Supports free tier AI models via OpenRouter
 
 ## How It Works
 
@@ -87,7 +88,7 @@ cp .env.example .env
 # - APP_ID
 # - PRIVATE_KEY_PATH
 # - WEBHOOK_SECRET
-# - OPENAI_API_KEY (for AI-powered analysis)
+# - OPENROUTER_API_KEY or OPENAI_API_KEY (for AI-powered analysis)
 
 # Start the app
 npm start
@@ -95,17 +96,40 @@ npm start
 
 **AI Configuration (Optional but Recommended):**
 
-ReadmeMuse uses OpenAI API for intelligent documentation analysis. To enable AI-powered features:
+ReadmeMuse supports multiple AI providers for intelligent documentation analysis:
+
+**Option 1: OpenRouter (Recommended for Freemium)**
+
+OpenRouter provides access to multiple AI models including free tier options, making it perfect for freemium deployments:
+
+1. Get a free API key from [OpenRouter](https://openrouter.ai/keys)
+2. Add to your `.env` file:
+   ```bash
+   OPENROUTER_API_KEY=your_api_key_here
+   ```
+3. The default free model (`meta-llama/llama-3.2-3b-instruct:free`) will be used automatically
+4. Optionally customize the model:
+   ```bash
+   AI_MODEL=meta-llama/llama-3.2-3b-instruct:free  # Free tier
+   # Or upgrade to better models:
+   # AI_MODEL=anthropic/claude-3.5-sonnet
+   # AI_MODEL=openai/gpt-4o
+   ```
+
+**Option 2: OpenAI (Direct)**
 
 1. Get an API key from [OpenAI Platform](https://platform.openai.com/api-keys)
 2. Add to your `.env` file:
    ```bash
    OPENAI_API_KEY=your_api_key_here
+   AI_MODEL=gpt-4o-mini  # Optional, this is the default
    ```
-3. Optionally customize the model:
-   ```bash
-   OPENAI_MODEL=gpt-4o  # Default: gpt-4o-mini
-   ```
+
+**Freemium Benefits with OpenRouter:**
+- 🆓 Free tier models available (no cost for basic usage)
+- 🔄 Easy upgrade path to better models
+- 🌐 Access to multiple AI providers (Anthropic, Google, Meta, etc.)
+- 💰 Competitive pricing for paid tiers
 
 Without AI configuration, ReadmeMuse falls back to heuristic-based analysis which still provides useful suggestions but with less intelligence.
 

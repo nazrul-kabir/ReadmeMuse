@@ -26,19 +26,30 @@ interface AIAnalysisResponse {
   diffPatch: string;
 }
 
-// Initialize OpenAI client for AI-powered analysis
-// This can use GitHub Copilot models or OpenAI models depending on configuration
-let openaiClient: OpenAI | null = null;
+// Initialize AI client for AI-powered analysis
+// Supports OpenRouter (default), OpenAI, or any OpenAI-compatible API
+let aiClient: OpenAI | null = null;
 
-function getOpenAIClient(): OpenAI | null {
-  if (!openaiClient && process.env.OPENAI_API_KEY) {
-    openaiClient = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
-      // Can be configured to use GitHub's model endpoint if needed
-      baseURL: process.env.OPENAI_BASE_URL || undefined,
+function getAIClient(): OpenAI | null {
+  // Check for OpenRouter API key first (preferred for freemium model)
+  const apiKey = process.env.OPENROUTER_API_KEY || process.env.OPENAI_API_KEY;
+  
+  if (!aiClient && apiKey) {
+    // Default to OpenRouter if OPENROUTER_API_KEY is set
+    const baseURL = process.env.OPENROUTER_API_KEY 
+      ? "https://openrouter.ai/api/v1"
+      : process.env.OPENAI_BASE_URL || undefined;
+    
+    aiClient = new OpenAI({
+      apiKey,
+      baseURL,
+      defaultHeaders: process.env.OPENROUTER_API_KEY ? {
+        "HTTP-Referer": process.env.OPENROUTER_REFERER || "https://github.com/nazrul-kabir/ReadmeMuse",
+        "X-Title": "ReadmeMuse",
+      } : undefined,
     });
   }
-  return openaiClient;
+  return aiClient;
 }
 
 /**
@@ -70,7 +81,7 @@ async function analyzeDocumentationFile(
   docFile: { path: string; content: string },
   input: AnalysisInput
 ): Promise<DocSuggestion | null> {
-  const client = getOpenAIClient();
+  const client = getAIClient();
   
   // If OpenAI client is available, use AI-powered analysis
   if (client) {
@@ -116,7 +127,7 @@ async function analyzeDocumentationFile(
 }
 
 /**
- * Analyze documentation file using AI (GitHub Copilot SDK / OpenAI)
+ * Analyze documentation file using AI (OpenRouter / OpenAI)
  * Generates intelligent suggestions with tone-aware context
  */
 async function analyzeWithAI(
@@ -133,9 +144,16 @@ async function analyzeWithAI(
   // Build the prompt with PR context, documentation, and tone examples
   const prompt = buildAIPrompt(docFile, input);
   
+  // Determine which model to use based on provider
+  const defaultModel = process.env.OPENROUTER_API_KEY 
+    ? "meta-llama/llama-3.2-3b-instruct:free"  // Free tier model on OpenRouter
+    : "gpt-4o-mini";  // OpenAI default
+  
+  const model = process.env.AI_MODEL || defaultModel;
+  
   try {
     const response = await client.chat.completions.create({
-      model: process.env.OPENAI_MODEL || "gpt-4o-mini",
+      model,
       messages: [
         {
           role: "system",
