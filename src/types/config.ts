@@ -12,6 +12,12 @@ export interface ReadmeMuseConfig {
    * List of documentation files to analyze for updates
    */
   documentationFiles: string[];
+  
+  /**
+   * Optional array of tone examples to guide AI-generated documentation
+   * These examples help the AI match the repository's unique voice and style
+   */
+  toneExamples?: string[];
 }
 
 /**
@@ -26,5 +32,6 @@ export const DEFAULT_CONFIG: ReadmeMuseConfig = {
   documentationFiles: [
     "README.md",
     "docs/**/*.md"
-  ]
+  ],
+  toneExamples: []
 };

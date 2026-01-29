@@ -17,3 +17,10 @@ documentationFiles:
   - "docs/**/*.md"
   - "CONTRIBUTING.md"
   - "API.md"
+
+# Optional: Examples of your repository's writing style and tone
+# These help ReadmeMuse match your unique voice when generating suggestions
+# Add 2-3 representative snippets from your existing documentation
+toneExamples:
+  - "Our API is designed to be intuitive and developer-friendly."
+  - "We believe in making complex tasks simple through elegant abstractions."

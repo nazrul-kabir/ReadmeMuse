@@ -96,9 +96,9 @@ GitHub Webhook (PR Event) --> Probot App (Node.js)
   |
   +-- Fetch Diff & Docs (GitHub API via Octokit)
   |
-  +-- Analyze with Copilot Agent (aiAnalyzer.ts)
+  +-- Analyze with AI Agent (aiAnalyzer.ts)
       |
-      +-- Custom Prompt: Diff + Tone Examples --> Copilot SDK/API Call
+      +-- Custom Prompt: Diff + Tone Examples --> AI API Call (OpenRouter/OpenAI)
       |
       +-- Generate Styled Diff Patch
   |
@@ -129,7 +129,8 @@ GitHub Webhook (PR Event) --> Probot App (Node.js)
 
 #### 5. AI Analyzer (`aiAnalyzer.ts`)
 
-- Integrate GitHub Copilot SDK (if available) or fallback to Copilot API.
+- Integrate AI via OpenRouter (recommended for freemium with free tier models) or OpenAI API.
+- Uses OpenAI-compatible SDK for flexibility across providers.
 - **Prompt Template**:
   ```
   Analyze this code diff: [diff]
@@ -169,10 +170,11 @@ GitHub Webhook (PR Event) --> Probot App (Node.js)
 - **Dependencies**:
   - `@probot/octokit`
   - `js-yaml` (for config)
-  - `micromatch` (for path globs)
-  - GitHub Copilot SDK (for AI calls; fallback to `@octokit/plugin-copilot` if needed)
+  - `minimatch` (for path globs)
+  - `openai` (OpenAI SDK for AI calls - works with OpenRouter, OpenAI, and other compatible APIs)
+- **AI Provider**: OpenAI SDK (not GitHub Copilot SDK - see ARCHITECTURE_DECISIONS.md for reasoning)
 - **Testing**: Jest for unit tests (e.g., path matching, config parsing).
-- **Deployment**: Vercel, Heroku, or AWS Lambda. Env vars: `GITHUB_APP_ID`, `PRIVATE_KEY`, `WEBHOOK_SECRET`.
+- **Deployment**: Vercel, Heroku, or AWS Lambda. Env vars: `GITHUB_APP_ID`, `PRIVATE_KEY`, `WEBHOOK_SECRET`, `OPENROUTER_API_KEY` or `OPENAI_API_KEY`.
 - **MCP Integration (Advanced)**: If using custom agent, add a separate Node.js MCP server (reference GitHub's MCP docs).
 
 ## 4. Implementation Guidelines
@@ -253,7 +255,8 @@ For implementation details and architecture diagrams, see:
 
 - **PR**: Pull Request
 - **Diff**: Code changes between two versions
-- **Copilot SDK**: GitHub's AI-powered code analysis SDK
+- **OpenRouter**: AI gateway providing access to multiple AI models with free tier options
+- **AI SDK**: OpenAI-compatible SDK for accessing various AI providers
 - **MCP**: Model Context Protocol
 - **Probot**: GitHub Apps framework for Node.js
 - **Octokit**: GitHub's official API client

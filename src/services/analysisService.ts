@@ -57,6 +57,7 @@ export async function analyzePRForDocUpdates(
         repository: repository.full_name,
         branch: pr.head.ref,
       },
+      toneExamples: config.toneExamples,
     });
 
     return suggestions;

@@ -13,9 +13,14 @@ GitHub-native, Copilot-powered partial doc diff agent — a lightweight GitHub A
 
 - 🎯 **Smart Triggering**: Only analyzes PRs when code changes touch configured watch paths
 - 📋 **YAML Configuration**: Simple repo-level config to define watchlist and documentation files
-- 🤖 **AI-Powered Analysis**: Analyzes PR diffs and suggests relevant documentation updates
+- 🤖 **AI-Powered Analysis**: Uses OpenRouter (with free tier models) or OpenAI API to analyze PR diffs and generate intelligent documentation suggestions
+- 🎨 **Tone Preservation**: Learns and matches your repository's unique voice using tone examples
 - 💬 **PR Comments**: Posts suggestions directly as GitHub PR comments with diff patches
-- 🔍 **Non-Invasive**: Preserves your repo's voice and style, only suggests updates where needed
+- 🔍 **Non-Invasive**: Only suggests updates where needed, preserving your workflow
+- 🔄 **Graceful Fallback**: Works with heuristic-based analysis if AI is not configured
+- 💰 **Freemium-Friendly**: Supports free tier AI models via OpenRouter
+
+> **Note on AI Provider:** ReadmeMuse uses the OpenAI SDK (not GitHub Copilot SDK) because it's designed as a webhook-based GitHub App requiring automated, stateless processing. The GitHub Copilot SDK is better suited for interactive, session-based workflows. See [ARCHITECTURE_DECISIONS.md](ARCHITECTURE_DECISIONS.md) for detailed reasoning.
 
 ## How It Works
 
@@ -56,6 +61,13 @@ documentationFiles:
   - "README.md"
   - "docs/**/*.md"
   - "CONTRIBUTING.md"
+
+# Optional: Tone examples to guide AI-generated documentation
+# Provide 2-3 representative snippets from your existing docs
+# This helps ReadmeMuse match your repository's unique voice
+toneExamples:
+  - "Our API is designed to be intuitive and developer-friendly."
+  - "We believe in making complex tasks simple through elegant abstractions."
 ```
 
 See [.readmemuse.yml.example](.readmemuse.yml.example) for a complete example.
@@ -78,10 +90,50 @@ cp .env.example .env
 # - APP_ID
 # - PRIVATE_KEY_PATH
 # - WEBHOOK_SECRET
+# - OPENROUTER_API_KEY or OPENAI_API_KEY (for AI-powered analysis)
 
 # Start the app
 npm start
 ```
+
+**AI Configuration (Optional but Recommended):**
+
+ReadmeMuse supports multiple AI providers for intelligent documentation analysis:
+
+**Option 1: OpenRouter (Recommended for Freemium)**
+
+OpenRouter provides access to multiple AI models including free tier options, making it perfect for freemium deployments:
+
+1. Get a free API key from [OpenRouter](https://openrouter.ai/keys)
+2. Add to your `.env` file:
+   ```bash
+   OPENROUTER_API_KEY=your_api_key_here
+   ```
+3. The default free model (`meta-llama/llama-3.2-3b-instruct:free`) will be used automatically
+4. Optionally customize the model:
+   ```bash
+   AI_MODEL=meta-llama/llama-3.2-3b-instruct:free  # Free tier
+   # Or upgrade to better models:
+   # AI_MODEL=anthropic/claude-3.5-sonnet
+   # AI_MODEL=openai/gpt-4o
+   ```
+
+**Option 2: OpenAI (Direct)**
+
+1. Get an API key from [OpenAI Platform](https://platform.openai.com/api-keys)
+2. Add to your `.env` file:
+   ```bash
+   OPENAI_API_KEY=your_api_key_here
+   AI_MODEL=gpt-4o-mini  # Optional, this is the default
+   ```
+
+**Freemium Benefits with OpenRouter:**
+- 🆓 Free tier models available (no cost for basic usage)
+- 🔄 Easy upgrade path to better models
+- 🌐 Access to multiple AI providers (Anthropic, Google, Meta, etc.)
+- 💰 Competitive pricing for paid tiers
+
+Without AI configuration, ReadmeMuse falls back to heuristic-based analysis which still provides useful suggestions but with less intelligence.
 
 #### Production Deployment
 
@@ -117,6 +169,23 @@ documentationFiles:
   - "CONTRIBUTING.md"   # Contributing guide
   - "API.md"            # API documentation
 ```
+
+### Tone Examples (AI Feature)
+
+Help ReadmeMuse match your repository's unique voice by providing tone examples:
+
+```yaml
+toneExamples:
+  - "We keep things simple and fun!"
+  - "Our API is designed with developers in mind."
+  - "Performance and scalability are at our core."
+```
+
+**Tips for tone examples:**
+- Provide 2-5 representative snippets from your existing documentation
+- Choose examples that showcase your writing style, formality level, and personality
+- The AI will use these to generate suggestions that sound like they're written by your team
+- Examples can be full sentences or short phrases that capture your voice
 
 ## Example Output
 
@@ -221,6 +290,7 @@ See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed deployment instructions covering
 - [QUICKSTART.md](QUICKSTART.md) - Get started in 5 minutes
 - [PRODUCT_SPEC.md](PRODUCT_SPEC.md) - Comprehensive product specification
 - [ARCHITECTURE.md](ARCHITECTURE.md) - System architecture and data flow diagrams
+- [ARCHITECTURE_DECISIONS.md](ARCHITECTURE_DECISIONS.md) - Key architectural decisions and rationale
 - [DEPLOYMENT.md](DEPLOYMENT.md) - Deployment guide
 - [CONTRIBUTING.md](CONTRIBUTING.md) - Contribution guidelines
 

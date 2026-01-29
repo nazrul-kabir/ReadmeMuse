@@ -36,6 +36,9 @@ heroku config:set APP_ID=your_app_id
 heroku config:set WEBHOOK_SECRET=your_webhook_secret
 heroku config:set PRIVATE_KEY="$(cat path/to/private-key.pem)"
 
+# Optional: Enable AI features with OpenRouter (free tier)
+heroku config:set OPENROUTER_API_KEY=your_openrouter_key
+
 # Deploy
 git push heroku main
 ```
@@ -51,11 +54,33 @@ npm run build
 
 # Configure environment
 cp .env.example .env
-# Edit .env with your values
+# Edit .env with your values:
+# - APP_ID (from GitHub App)
+# - WEBHOOK_SECRET (from GitHub App)
+# - PRIVATE_KEY_PATH (path to your private key file)
+# - OPENROUTER_API_KEY (optional, for AI features - recommended)
+#   Get free key from: https://openrouter.ai/keys
 
 # Start
 npm start
 ```
+
+**🤖 AI Configuration (Optional but Recommended):**
+
+For intelligent documentation suggestions, add one of these to your `.env`:
+
+**Option 1: OpenRouter (Free Tier Available)**
+```bash
+OPENROUTER_API_KEY=sk-or-v1-xxx  # Get from https://openrouter.ai/keys
+# Uses free model by default - $0 cost!
+```
+
+**Option 2: OpenAI**
+```bash
+OPENAI_API_KEY=sk-xxx  # Get from https://platform.openai.com/api-keys
+```
+
+Without AI configuration, ReadmeMuse uses heuristic-based analysis (less intelligent but still useful).
 
 ### Docker
 
@@ -65,8 +90,11 @@ docker run -d -p 3000:3000 \
   -e APP_ID=your_app_id \
   -e WEBHOOK_SECRET=your_secret \
   -e PRIVATE_KEY="$(cat private-key.pem)" \
+  -e OPENROUTER_API_KEY=your_key \
   readmemuse
 ```
+
+> **Tip:** Add `-e OPENROUTER_API_KEY=sk-or-v1-xxx` for AI-powered suggestions (free tier available)
 
 ## Step 3: Install on Repository
 
@@ -90,6 +118,11 @@ watchPaths:
 documentationFiles:
   - "README.md"
   - "docs/**/*.md"
+
+# Optional: Tone examples to match your repo's voice (for AI features)
+toneExamples:
+  - "Our API is designed to be intuitive and developer-friendly."
+  - "We believe in making complex tasks simple."
 ```
 
 ## Step 5: Test It!

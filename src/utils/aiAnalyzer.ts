@@ -1,4 +1,5 @@
 import { DocSuggestion } from "../types/suggestion";
+import OpenAI from "openai";
 
 interface AnalysisInput {
   prDiff: string;
@@ -16,13 +17,72 @@ interface AnalysisInput {
     repository: string;
     branch: string;
   };
+  toneExamples?: string[];
+}
+
+interface AIAnalysisResponse {
+  summary: string;
+  reasoning: string;
+  diffPatch: string;
+}
+
+/**
+ * AI Provider Architecture Decision
+ * 
+ * ReadmeMuse uses the OpenAI SDK (not GitHub Copilot SDK) for AI-powered analysis.
+ * 
+ * Why OpenAI SDK?
+ * - ReadmeMuse is a webhook-based GitHub App (automated, stateless)
+ * - OpenAI SDK provides direct API access perfect for automation
+ * - Works with multiple providers: OpenRouter (freemium), OpenAI, Azure OpenAI
+ * - Simple request/response pattern matches webhook model
+ * 
+ * Why NOT GitHub Copilot SDK?
+ * - Copilot SDK (@github/copilot-sdk) is designed for interactive sessions
+ * - Best for: CLI tools, @-mentions, user-triggered workflows, MCP servers
+ * - NOT optimized for: Background webhook automation, stateless operations
+ * - GitHub deprecated Copilot Extensions as GitHub Apps (Nov 2025)
+ * - Would require complex session management in webhook handlers
+ * 
+ * For detailed reasoning, see: ARCHITECTURE_DECISIONS.md (ADR-001)
+ * 
+ * Supported Providers:
+ * - OpenRouter (primary): Free tier models, freemium-friendly
+ * - OpenAI (fallback): Direct OpenAI API access
+ * - Any OpenAI-compatible API (via OPENAI_BASE_URL)
+ */
+let aiClient: OpenAI | null = null;
+
+function getAIClient(): OpenAI | null {
+  // Check for OpenRouter API key first (preferred for freemium model)
+  const apiKey = process.env.OPENROUTER_API_KEY || process.env.OPENAI_API_KEY;
+  
+  if (!aiClient && apiKey) {
+    // Default to OpenRouter if OPENROUTER_API_KEY is set
+    const baseURL = process.env.OPENROUTER_API_KEY 
+      ? "https://openrouter.ai/api/v1"
+      : process.env.OPENAI_BASE_URL || undefined;
+    
+    aiClient = new OpenAI({
+      apiKey,
+      baseURL,
+      defaultHeaders: process.env.OPENROUTER_API_KEY ? {
+        "HTTP-Referer": process.env.OPENROUTER_REFERER || "https://github.com/nazrul-kabir/ReadmeMuse",
+        "X-Title": "ReadmeMuse",
+      } : undefined,
+    });
+  }
+  return aiClient;
 }
 
 /**
  * Generate documentation suggestions using AI analysis
  * 
- * This function integrates with GitHub Copilot SDK to analyze PR changes
- * and suggest documentation updates.
+ * Uses OpenAI SDK (not GitHub Copilot SDK) for automated analysis in webhook context.
+ * The OpenAI SDK is better suited for stateless, webhook-driven automation, while
+ * the GitHub Copilot SDK is designed for interactive, session-based workflows.
+ * 
+ * See ARCHITECTURE_DECISIONS.md for detailed reasoning.
  */
 export async function generateDocumentationSuggestions(
   input: AnalysisInput
@@ -47,9 +107,30 @@ async function analyzeDocumentationFile(
   docFile: { path: string; content: string },
   input: AnalysisInput
 ): Promise<DocSuggestion | null> {
-  // TODO: Integrate with GitHub Copilot SDK
-  // For now, use a simple heuristic-based approach
+  const client = getAIClient();
   
+  // If OpenAI client is available, use AI-powered analysis
+  if (client) {
+    try {
+      const aiResponse = await analyzeWithAI(client, docFile, input);
+      
+      if (!aiResponse || !aiResponse.diffPatch) {
+        return null;
+      }
+      
+      return {
+        filePath: docFile.path,
+        diffPatch: aiResponse.diffPatch,
+        summary: aiResponse.summary,
+        reasoning: aiResponse.reasoning,
+      };
+    } catch (error) {
+      console.warn(`AI analysis failed, falling back to heuristic approach:`, error);
+      // Fall through to heuristic approach
+    }
+  }
+  
+  // Fallback to heuristic-based approach if AI is not available
   const needsUpdate = await checkIfDocNeedsUpdate(docFile, input);
   
   if (!needsUpdate) {
@@ -72,8 +153,117 @@ async function analyzeDocumentationFile(
 }
 
 /**
- * Check if documentation needs update based on PR changes
+ * Analyze documentation file using AI (OpenRouter / OpenAI)
+ * Generates intelligent suggestions with tone-aware context
  */
+async function analyzeWithAI(
+  client: OpenAI,
+  docFile: { path: string; content: string },
+  input: AnalysisInput
+): Promise<AIAnalysisResponse | null> {
+  // Check if documentation needs update first (lightweight check)
+  const needsUpdate = await checkIfDocNeedsUpdate(docFile, input);
+  if (!needsUpdate) {
+    return null;
+  }
+  
+  // Build the prompt with PR context, documentation, and tone examples
+  const prompt = buildAIPrompt(docFile, input);
+  
+  // Determine which model to use based on provider
+  const defaultModel = process.env.OPENROUTER_API_KEY 
+    ? "meta-llama/llama-3.2-3b-instruct:free"  // Free tier model on OpenRouter
+    : "gpt-4o-mini";  // OpenAI default
+  
+  const model = process.env.AI_MODEL || defaultModel;
+  
+  try {
+    const response = await client.chat.completions.create({
+      model,
+      messages: [
+        {
+          role: "system",
+          content: "You are a documentation assistant that analyzes code changes and suggests precise documentation updates. You match the repository's unique voice and tone. Always output valid JSON with the required structure."
+        },
+        {
+          role: "user",
+          content: prompt
+        }
+      ],
+      response_format: { type: "json_object" },
+      temperature: 0.3, // Lower temperature for more consistent, focused output
+    });
+    
+    const content = response.choices[0]?.message?.content;
+    if (!content) {
+      return null;
+    }
+    
+    const parsed = JSON.parse(content) as AIAnalysisResponse;
+    
+    // Validate the response structure
+    if (!parsed.summary || !parsed.reasoning || !parsed.diffPatch) {
+      console.warn("AI response missing required fields:", parsed);
+      return null;
+    }
+    
+    return parsed;
+  } catch (error) {
+    console.error("Error calling AI API:", error);
+    throw error;
+  }
+}
+
+/**
+ * Build AI prompt with PR diff context, existing docs, and tone examples
+ */
+function buildAIPrompt(
+  docFile: { path: string; content: string },
+  input: AnalysisInput
+): string {
+  const changedFilesContext = input.changedFiles
+    .map(file => `File: ${file.filename}\nChanges:\n${file.patch}`)
+    .join("\n\n---\n\n");
+  
+  const toneContext = input.toneExamples && input.toneExamples.length > 0
+    ? `\n\nTone Examples (match this writing style):\n${input.toneExamples.map((ex, i) => `${i + 1}. ${ex}`).join("\n")}`
+    : "";
+  
+  // Truncate documentation content to focus on relevant sections
+  const maxDocLength = 2000;
+  const truncatedDoc = docFile.content.length > maxDocLength
+    ? docFile.content.substring(0, maxDocLength) + "\n... (truncated)"
+    : docFile.content;
+  
+  return `Analyze this pull request and suggest documentation updates for ${docFile.path}.
+
+PR Title: ${input.prTitle}
+PR Description: ${input.prBody || "No description provided"}
+
+Code Changes:
+${changedFilesContext}
+
+Current Documentation Content (${docFile.path}):
+\`\`\`
+${truncatedDoc}
+\`\`\`
+${toneContext}
+
+Task: Generate a documentation update suggestion that:
+1. Reflects the code changes made in this PR
+2. Matches the repository's tone and style (use tone examples as reference)
+3. Is minimal and precise - only update what's necessary
+4. Uses unified diff format for the patch
+
+Output a JSON object with this exact structure:
+{
+  "summary": "Brief description of suggested update (1-2 sentences)",
+  "reasoning": "Explanation of why this update is needed and how it preserves the repo's voice (2-3 sentences)",
+  "diffPatch": "Unified diff format patch showing the suggested changes (use --- a/${docFile.path} and +++ b/${docFile.path} format)"
+}
+
+If no documentation update is needed, return empty strings for all fields.`;
+}
 async function checkIfDocNeedsUpdate(
   docFile: { path: string; content: string },
   input: AnalysisInput

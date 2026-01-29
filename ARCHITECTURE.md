@@ -20,7 +20,7 @@ ReadmeMuse is a GitHub App that automatically suggests documentation updates whe
 1. **Webhook Reception**: GitHub sends PR events to ReadmeMuse
 2. **Event Filtering**: System checks if changes affect watched paths
 3. **Context Assembly**: Gathers PR diff, existing docs, and repo structure
-4. **AI Analysis**: Copilot SDK generates documentation patches
+4. **AI Analysis**: OpenAI SDK generates documentation patches (see ARCHITECTURE_DECISIONS.md for why not Copilot SDK)
 5. **Validation**: Ensures patches are valid and safe
 6. **PR Comment**: Posts suggestions as formatted GitHub comments
 7. **User Interaction**: Repository maintainers can apply, snooze, or ignore suggestions
@@ -49,7 +49,7 @@ ReadmeMuse is a GitHub App that automatically suggests documentation updates whe
   │                 └───────────────┬─────────────────────────────────────────────┘
   │                                 │
   │                                 ▼
-  │                    5. Copilot SDK Agent (2-5s) ◄── workspace context
+  │                    5. AI Analysis (OpenAI SDK) (2-5s) ◄── workspace context
   │                                 │
   │                                 ▼
   │                    6. Patch Validation (100ms)
