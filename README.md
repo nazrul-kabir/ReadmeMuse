@@ -38,16 +38,19 @@ GitHub-native, Copilot-powered partial doc diff agent — a lightweight GitHub A
 
 1. Create a new GitHub App in your organization settings
 2. Set the following permissions:
-   - Repository contents: Read
+   - Repository contents: Read & Write (for creating config files)
    - Pull requests: Read & Write
    - Issues: Read & Write (for comments)
 3. Subscribe to webhook events:
+   - Installation (created, repositories added)
    - Pull request (opened, synchronize)
 4. Install the app on repositories you want to monitor
 
-### 2. Configure Your Repository
+**✨ ReadmeMuse automatically creates a `.readmemuse.yml` configuration template when installed!**
 
-Create a `.readmemuse.yml` file in your repository root:
+### 2. Configure Your Repository (Optional)
+
+When you install ReadmeMuse, it automatically creates a `.readmemuse.yml` file in your repository root with sensible defaults. You can customize it as needed:
 
 ```yaml
 # Which files to watch for changes

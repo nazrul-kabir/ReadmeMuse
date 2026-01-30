@@ -4,11 +4,12 @@ url: https://github.com/nazrul-kabir/ReadmeMuse
 
 # Webhook events
 default_events:
+  - installation
   - pull_request
 
 # Permissions
 default_permissions:
-  contents: read
+  contents: write  # Write permission needed to create .readmemuse.yml on installation
   issues: write
   pull_requests: write
 
