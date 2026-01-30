@@ -47,13 +47,18 @@ export async function handleInstallation(
     repositories = payload.repositories_added || [];
   }
 
-  context.log.info(`Processing installation for ${repositories.length} repository/repositories`);
+  context.log.info(`Processing installation for ${repositories.length} ${repositories.length === 1 ? 'repository' : 'repositories'}`);
 
   // Process each repository
   for (const repo of repositories) {
     try {
       // Extract owner from full_name (format: "owner/repo")
-      const [owner, repoName] = repo.full_name.split("/");
+      const parts = repo.full_name.split("/");
+      if (parts.length !== 2) {
+        context.log.error(`Invalid repository full_name format: ${repo.full_name}`);
+        continue;
+      }
+      const [owner, repoName] = parts;
       await createConfigIfMissing(context, owner, repoName);
     } catch (error: any) {
       context.log.error(`Error creating config for ${repo.full_name}:`, error);
@@ -81,7 +86,8 @@ async function createConfigIfMissing(
     // If we get here, file exists - don't overwrite it
     context.log.info(`Config file already exists in ${owner}/${repo}, skipping creation`);
   } catch (error: any) {
-    if (error.status === 404) {
+    // Check if error is a 404 (file not found)
+    if (error && typeof error === 'object' && error.status === 404) {
       // File doesn't exist, create it
       try {
         await context.octokit.rest.repos.createOrUpdateFileContents({

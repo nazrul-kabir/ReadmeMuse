@@ -38,7 +38,7 @@ GitHub-native, Copilot-powered partial doc diff agent — a lightweight GitHub A
 
 1. Create a new GitHub App in your organization settings
 2. Set the following permissions:
-   - Repository contents: Read & Write (for creating config files)
+   - Repository contents: Read & Write
    - Pull requests: Read & Write
    - Issues: Read & Write (for comments)
 3. Subscribe to webhook events:
