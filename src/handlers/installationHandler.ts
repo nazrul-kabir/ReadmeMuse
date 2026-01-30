@@ -3,6 +3,20 @@ import { Context } from "probot";
 const CONFIG_FILENAME = ".readmemuse.yml";
 
 /**
+ * Helper function to pluralize repository/repositories
+ */
+function pluralizeRepositories(count: number): string {
+  return count === 1 ? 'repository' : 'repositories';
+}
+
+/**
+ * Type guard to check if error is a 404 Not Found error
+ */
+function isNotFoundError(error: any): boolean {
+  return error && typeof error === 'object' && error.status === 404;
+}
+
+/**
  * Default configuration template to create on installation
  */
 const CONFIG_TEMPLATE = `# Configuration for ReadmeMuse
@@ -47,7 +61,7 @@ export async function handleInstallation(
     repositories = payload.repositories_added || [];
   }
 
-  context.log.info(`Processing installation for ${repositories.length} ${repositories.length === 1 ? 'repository' : 'repositories'}`);
+  context.log.info(`Processing installation for ${repositories.length} ${pluralizeRepositories(repositories.length)}`);
 
   // Process each repository
   for (const repo of repositories) {
@@ -87,7 +101,7 @@ async function createConfigIfMissing(
     context.log.info(`Config file already exists in ${owner}/${repo}, skipping creation`);
   } catch (error: any) {
     // Check if error is a 404 (file not found)
-    if (error && typeof error === 'object' && error.status === 404) {
+    if (isNotFoundError(error)) {
       // File doesn't exist, create it
       try {
         await context.octokit.rest.repos.createOrUpdateFileContents({
