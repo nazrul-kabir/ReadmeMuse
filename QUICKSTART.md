@@ -103,9 +103,11 @@ docker run -d -p 3000:3000 \
 3. Select repositories to monitor
 4. Click "Install"
 
-## Step 4: Configure Repository
+**✨ ReadmeMuse will automatically create a `.readmemuse.yml` configuration file in your repository if one doesn't exist!**
 
-Create `.readmemuse.yml` in your repository root:
+## Step 4: Configure Repository (Optional)
+
+A `.readmemuse.yml` file is automatically created when you install ReadmeMuse. You can customize it if needed:
 
 ```yaml
 # Files to watch - when these change, docs are analyzed
@@ -124,6 +126,8 @@ toneExamples:
   - "Our API is designed to be intuitive and developer-friendly."
   - "We believe in making complex tasks simple."
 ```
+
+> **Note:** The default configuration watches `src/`, `lib/`, and `api/` directories and monitors `README.md` and docs files. Customize as needed for your project structure.
 
 ## Step 5: Test It!
 
