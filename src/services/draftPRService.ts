@@ -11,9 +11,15 @@ export async function createDraftPRWithChanges(
 ): Promise<void> {
   const payload = context.payload as any;
   const repository = payload.repository;
-  const branchName = `readmemuse-sync-${pr.number}`;
+  
+  // Validate PR number to prevent injection issues
+  const prNumber = Number(pr.number);
+  if (!Number.isInteger(prNumber) || prNumber <= 0) {
+    throw new Error(`Invalid PR number: ${pr.number}`);
+  }
+  const branchName = `readmemuse-sync-${prNumber}`;
 
-  context.log.info(`Creating draft PR with documentation changes for PR #${pr.number}`);
+  context.log.info(`Creating draft PR with documentation changes for PR #${prNumber}`);
 
   try {
     // Get the base branch SHA
@@ -128,7 +134,7 @@ async function applyDocumentationChange(
     }
 
     // Apply the diff patch to get new content
-    const newContent = applyDiffPatch(currentContent, suggestion.diffPatch);
+    const newContent = applyDiffPatch(context, currentContent, suggestion.diffPatch);
 
     // Commit the change
     await context.octokit.rest.repos.createOrUpdateFileContents({
@@ -168,7 +174,7 @@ async function applyDocumentationChange(
  * - Support more complex diff scenarios
  * - Better error reporting when diffs cannot be applied
  */
-function applyDiffPatch(originalContent: string, diffPatch: string): string {
+function applyDiffPatch(context: Context, originalContent: string, diffPatch: string): string {
   // If the diff patch starts with '---' and '+++', it's a unified diff format
   
   const lines = diffPatch.split("\n");
@@ -239,7 +245,7 @@ function applyDiffPatch(originalContent: string, diffPatch: string): string {
   
   // If still no content, log warning and return original with error marker
   if (newLines.length === 0) {
-    console.warn("Could not apply diff patch - returning original content with error marker");
+    context.log.warn("Could not apply diff patch - returning original content with error marker");
     return originalContent + "\n\n<!-- ReadmeMuse: Could not automatically apply diff. Please review manually. -->\n";
   }
   
