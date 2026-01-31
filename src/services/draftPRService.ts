@@ -64,7 +64,7 @@ export async function createDraftPRWithChanges(
     }
 
     // Create draft PR
-    const draftPR = await context.octokit.rest.pulls.create({
+    const { data: draftPR } = await context.octokit.rest.pulls.create({
       owner: repository.owner.login,
       repo: repository.name,
       title: `📝 ReadmeMuse: Documentation updates for PR #${pr.number}`,
@@ -74,7 +74,7 @@ export async function createDraftPRWithChanges(
       draft: true,
     });
 
-    context.log.info(`Created draft PR #${draftPR.data.number} for documentation updates`);
+    context.log.info(`Created draft PR #${draftPR.number} for documentation updates`);
 
     // Add a comment to the original PR linking to the draft PR
     await context.octokit.rest.issues.createComment({
@@ -82,7 +82,7 @@ export async function createDraftPRWithChanges(
       repo: repository.name,
       issue_number: pr.number,
       body: `## 📝 ReadmeMuse: Documentation Update Draft PR Created\n\n` +
-        `I've created a draft PR with suggested documentation updates: #${draftPR.data.number}\n\n` +
+        `I've created a draft PR with suggested documentation updates: #${draftPR.number}\n\n` +
         `Review and merge the draft PR to apply the changes, or edit it as needed.`,
     });
 
@@ -150,11 +150,26 @@ async function applyDocumentationChange(
 
 /**
  * Apply a unified diff patch to content
- * This is a simplified implementation that handles basic diff patches
+ * 
+ * This is a simplified implementation that handles basic unified diff patches.
+ * 
+ * Supported formats:
+ * - Standard unified diff format (--- +++ @@)
+ * - Simple line-based additions/deletions (+/- prefix)
+ * - Context lines (space prefix)
+ * 
+ * Limitations:
+ * - Does not handle complex multi-hunk diffs
+ * - Assumes sequential line processing
+ * - May fail on heavily modified files or non-standard diff formats
+ * 
+ * Future improvements:
+ * - Use a proper diff parsing library for more robust handling
+ * - Support more complex diff scenarios
+ * - Better error reporting when diffs cannot be applied
  */
 function applyDiffPatch(originalContent: string, diffPatch: string): string {
   // If the diff patch starts with '---' and '+++', it's a unified diff format
-  // For now, we'll use a simple approach: extract the new content from the diff
   
   const lines = diffPatch.split("\n");
   const originalLines = originalContent.split("\n");
@@ -222,9 +237,10 @@ function applyDiffPatch(originalContent: string, diffPatch: string): string {
     }
   }
   
-  // If still no content, return original with a note
+  // If still no content, log warning and return original with error marker
   if (newLines.length === 0) {
-    return originalContent + "\n\n<!-- ReadmeMuse: Could not automatically apply diff -->\n";
+    console.warn("Could not apply diff patch - returning original content with error marker");
+    return originalContent + "\n\n<!-- ReadmeMuse: Could not automatically apply diff. Please review manually. -->\n";
   }
   
   return newLines.join("\n");
