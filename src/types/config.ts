@@ -18,6 +18,13 @@ export interface ReadmeMuseConfig {
    * These examples help the AI match the repository's unique voice and style
    */
   toneExamples?: string[];
+  
+  /**
+   * Optional: Enable draft PR creation instead of posting comments
+   * When true, creates a branch and draft PR with applied documentation changes
+   * When false (default), posts suggestions as PR comments
+   */
+  createDraftPR?: boolean;
 }
 
 /**
@@ -33,5 +40,6 @@ export const DEFAULT_CONFIG: ReadmeMuseConfig = {
     "README.md",
     "docs/**/*.md"
   ],
-  toneExamples: []
+  toneExamples: [],
+  createDraftPR: false
 };
