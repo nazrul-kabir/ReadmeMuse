@@ -71,7 +71,7 @@ A GitHub App that monitors PRs for code changes, analyzes diffs using a tone-awa
 #### 4. Output Delivery
 
 - Post as a PR review comment thread.
-- **Optional Stretch**: Create a draft PR with actual file changes (branch: `readmemuse-sync-[pr-number]`).
+- **✅ Implemented - Phase 2 Feature**: Create a draft PR with actual file changes (branch: `readmemuse-sync-[pr-number]`). Enable via `createDraftPR: true` in `.readmemuse.yml`.
 
 #### 5. Tone Learning (Basic for MVP)
 
@@ -196,7 +196,7 @@ GitHub Webhook (PR Event) --> Probot App (Node.js)
 
 ### Extensions for v2
 
-- Draft PR creation.
+- ✅ **Draft PR creation** (Implemented - configurable via `createDraftPR: true`)
 - Push/commit triggers.
 - Persistent tone learning (DB for examples).
 - Monetization: Web dashboard for paid tiers ($10/mo per repo).
@@ -222,7 +222,8 @@ Mock webhooks; verify comments post correctly.
 
 ### Phase 2 Features
 
-- **Multi-file Patches**: Support updating multiple documentation files in one suggestion
+- ✅ **Draft PR Creation**: Automatically create draft PRs with applied documentation changes (Implemented - configurable via `createDraftPR: true`)
+- **Multi-file Patches**: Support updating multiple documentation files in one suggestion (Implemented in draft PR mode)
 - **Incremental Updates**: Track applied patches to avoid duplicates
 - **Custom Prompts**: Per-repo AI instructions in config
 - **Analytics Dashboard**: Track suggestion acceptance rates

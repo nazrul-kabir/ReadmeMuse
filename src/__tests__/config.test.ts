@@ -19,6 +19,11 @@ describe('config', () => {
     expect(DEFAULT_CONFIG.toneExamples).toEqual([]);
   });
 
+  it('should have createDraftPR field with default false', () => {
+    expect(DEFAULT_CONFIG.createDraftPR).toBeDefined();
+    expect(DEFAULT_CONFIG.createDraftPR).toBe(false);
+  });
+
   it('should support optional toneExamples in config interface', () => {
     // Type checking test - will fail at compile time if interface is wrong
     const configWithTone = {
@@ -34,5 +39,23 @@ describe('config', () => {
       documentationFiles: ['README.md']
     };
     expect(configWithoutTone.toneExamples).toBeUndefined();
+  });
+
+  it('should support optional createDraftPR in config interface', () => {
+    // Config with createDraftPR enabled
+    const configWithDraftPR = {
+      watchPaths: ['src/**/*'],
+      documentationFiles: ['README.md'],
+      createDraftPR: true
+    };
+    expect(configWithDraftPR.createDraftPR).toBe(true);
+
+    // Config with createDraftPR disabled
+    const configWithoutDraftPR = {
+      watchPaths: ['src/**/*'],
+      documentationFiles: ['README.md'],
+      createDraftPR: false
+    };
+    expect(configWithoutDraftPR.createDraftPR).toBe(false);
   });
 });
