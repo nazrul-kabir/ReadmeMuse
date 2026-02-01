@@ -3,6 +3,7 @@ import { loadConfig } from "../services/configService";
 import { shouldAnalyzePR } from "../utils/pathMatcher";
 import { analyzePRForDocUpdates } from "../services/analysisService";
 import { postDocumentationSuggestions } from "../services/commentService";
+import { createDraftPRWithChanges } from "../services/draftPRService";
 
 /**
  * Handle pull request events
@@ -43,10 +44,16 @@ export async function handlePullRequest(context: Context<"pull_request.opened" |
       return;
     }
 
-    // Post suggestions as PR comment
-    await postDocumentationSuggestions(context, pr, suggestions);
-    
-    context.log.info(`Posted ${suggestions.length} documentation suggestions for PR #${pr.number}`);
+    // Choose delivery method based on configuration
+    if (config.createDraftPR) {
+      // Create a draft PR with the changes applied
+      await createDraftPRWithChanges(context, pr, suggestions);
+      context.log.info(`Created draft PR with ${suggestions.length} documentation changes for PR #${pr.number}`);
+    } else {
+      // Post suggestions as PR comment (default behavior)
+      await postDocumentationSuggestions(context, pr, suggestions);
+      context.log.info(`Posted ${suggestions.length} documentation suggestions for PR #${pr.number}`);
+    }
   } catch (error: any) {
     context.log.error(`Error processing PR #${pr.number}:`, error);
     throw error;

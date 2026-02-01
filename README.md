@@ -16,6 +16,7 @@ GitHub-native, Copilot-powered partial doc diff agent — a lightweight GitHub A
 - 🤖 **AI-Powered Analysis**: Uses OpenRouter (with free tier models) or OpenAI API to analyze PR diffs and generate intelligent documentation suggestions
 - 🎨 **Tone Preservation**: Learns and matches your repository's unique voice using tone examples
 - 💬 **PR Comments**: Posts suggestions directly as GitHub PR comments with diff patches
+- 📝 **Draft PR Creation**: Optionally creates draft PRs with applied documentation changes (Phase 2 feature)
 - 🔍 **Non-Invasive**: Only suggests updates where needed, preserving your workflow
 - 🔄 **Graceful Fallback**: Works with heuristic-based analysis if AI is not configured
 - 💰 **Freemium-Friendly**: Supports free tier AI models via OpenRouter
@@ -28,7 +29,7 @@ GitHub-native, Copilot-powered partial doc diff agent — a lightweight GitHub A
 2. **Path Matching**: Checks if changed files match your configured watch paths
 3. **AI Analysis**: Analyzes PR diff and existing documentation content
 4. **Suggestions**: Generates precise diff patches for documentation updates
-5. **PR Comment**: Posts suggestions as a formatted comment with expandable diffs
+5. **Delivery**: Posts suggestions as PR comments OR creates a draft PR with applied changes (configurable)
 
 ## Setup
 
@@ -190,7 +191,36 @@ toneExamples:
 - The AI will use these to generate suggestions that sound like they're written by your team
 - Examples can be full sentences or short phrases that capture your voice
 
+### Draft PR Creation (Phase 2 Feature)
+
+Enable automatic draft PR creation to apply documentation changes directly:
+
+```yaml
+# When enabled, creates a branch and draft PR with applied changes
+# When disabled (default), posts suggestions as comments
+createDraftPR: true
+```
+
+**How it works:**
+1. ReadmeMuse creates a new branch named `readmemuse-sync-[pr-number]`
+2. Applies all documentation changes to this branch
+3. Opens a draft PR with the changes for review
+4. Posts a comment on the original PR linking to the draft PR
+
+**Benefits:**
+- ✨ Changes are ready to merge after review
+- 🔄 No manual copy-paste of diff patches
+- 📝 Full GitHub workflow for reviewing and editing suggestions
+- 🎯 Easy to approve, edit, or close the draft PR
+
+**When to use:**
+- Enable for repos where you trust the AI suggestions and want faster workflows
+- Keep disabled (default) if you prefer to manually review and apply changes
+- Great for teams that want to batch-review multiple documentation updates
+
 ## Example Output
+
+### Comment Mode (Default)
 
 When a PR modifies watched files, ReadmeMuse posts a comment like:
 
@@ -214,6 +244,27 @@ Documentation should be updated to reflect these changes.
 your documentation in sync with code changes.
 ```
 
+### Draft PR Mode
+
+When `createDraftPR: true` is enabled, ReadmeMuse:
+
+1. **Creates a branch**: `readmemuse-sync-[pr-number]` with applied changes
+2. **Opens a draft PR** with all documentation updates
+3. **Posts a comment** on the original PR:
+
+```markdown
+## 📝 ReadmeMuse: Documentation Update Draft PR Created
+
+I've created a draft PR with suggested documentation updates: #123
+
+Review and merge the draft PR to apply the changes, or edit it as needed.
+```
+
+The draft PR contains:
+- All documentation files updated with suggested changes
+- Clear description of what changed and why
+- Ready to review, edit, and merge through normal GitHub workflow
+
 ## Architecture
 
 ReadmeMuse follows a clean, event-driven architecture optimized for GitHub App webhooks:
@@ -226,7 +277,8 @@ src/
 ├── services/
 │   ├── configService.ts         # Config loading
 │   ├── analysisService.ts       # PR analysis orchestration
-│   └── commentService.ts        # PR comment formatting
+│   ├── commentService.ts        # PR comment formatting
+│   └── draftPRService.ts        # Draft PR creation (Phase 2)
 ├── utils/
 │   ├── pathMatcher.ts          # File pattern matching
 │   └── aiAnalyzer.ts           # AI-powered doc analysis

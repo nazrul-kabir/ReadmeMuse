@@ -24,3 +24,8 @@ documentationFiles:
 toneExamples:
   - "Our API is designed to be intuitive and developer-friendly."
   - "We believe in making complex tasks simple through elegant abstractions."
+
+# Optional: Enable draft PR creation instead of posting comments
+# When true, creates a branch (readmemuse-sync-[pr-number]) and draft PR with applied changes
+# When false (default), posts suggestions as PR comments for manual application
+# createDraftPR: false
